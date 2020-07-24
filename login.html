@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOGIN</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Acme&family=Bree+Serif&family=Permanent+Marker&display=swap" rel="stylesheet">    
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <!-- Vue cdn -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- axios cdn -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        html,body{
+            height: 100%;
+            background-color: #b5838d;
+            /* text-align: left; */
+        }
+        body{
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-form{
+            width: 350px;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 50px 40px 15px;
+        }
+        .login-form h1{
+            font-family: 'Permanent Marker', cursive;
+            text-align: center;
+            padding: 15px;
+            color: #333;
+        }
+        label{
+            font-family: 'Acme', sans-serif;
+        }
+        .form-group input{
+            width: 100%;
+            height: 40px;
+            border: none;
+            background-color: #ededed;
+            border-radius: 4px;
+            color: #666;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Bree Serif', serif;
+        }
+        .login-btn{
+            display: block;
+            border: 3px solid #b5838d;
+            width: 200px;
+            height: 50px;
+            margin: 40px auto;
+            border-radius: 10px;
+            background-color: #fff;
+            color: #333;
+            font-size: 18px;
+            font-family: 'Acme', sans-serif;
+            cursor: pointer;
+            transition: .2s linear;
+        }
+        .login-btn:hover{
+            background-color: #b5838d;
+            /* color: #999; */
+            /* opacity: .85; */
+        }
+        .copy-mark{
+            text-align: center;
+            font-size: 14px;
+            font-family: 'Acme', sans-serif;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <form class="login-form" @keyup.enter="signin()">
+                <h1>Login</h1>
+                <div class="form-group">
+                    <label for="inputEmail">Email Address</label>
+                    <input id="inputEmail" type="email" class="form-control" placeholder="email" required autofocus v-model="user.email">
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword">Password</label>
+                    <input id="inputPassword" type="password" class="form-control" placeholder="password" required v-model="user.password">
+                </div>
+                <button type="submit" class="login-btn" @click.prevent="signin()">Sign In</button>
+                <!-- <button type="button" @click="getData()">Get token</button> -->
+                <p class="copy-mark">&copy; JS實戰班 -- Miko 2020</p>
+            </form>
+        </div>
+    </div>
+    <script>
+        const uuid = '8e167757-8b00-4955-b28e-9494996b792d';
+        const apiPath = 'https://course-ec-api.hexschool.io/api/';
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    user:{
+                        email:'',
+                        password:''
+                    }
+                };
+            },
+            methods: {
+                signin(){
+                    // console.log("I'm signin");
+                    const api=`${apiPath}auth/login`;
+                    axios.post(api, this.user).then((res) =>{
+                        console.log(res);
+                        const token = res.data.token;
+                        const expired = res.data.expired;
+                        document.cookie = `MikoToken = ${token}; expires = ${new Date (expired*1000)}; path=/`;
+                        window.location = 'productlist.html';
+                    }).catch((err) => {
+                        console.log(err);
+                    });
+                },
+                getData(){
+                    this.token = document.cookie.replace(/(?:(?:^|.*;\s*)MikoToken\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+                    console.log(this.token);
+                    axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+                    axios.get(`${apiPath}${uuid}/admin/ec/products`) .then(res => {
+                        console.log(res);
+                    })
+                }
+            },
+        })
+    </script>
+</body>
+</html>
